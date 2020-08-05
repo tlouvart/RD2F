@@ -22,7 +22,7 @@ RD2F_root = os.path.dirname(os.path.abspath(__file__))
 
 directory = os.path.join(RD2F_root, 'Datasets\Images_gridded')
 
-#1ere option
+#  #1ere option
 
 # train_image_folder ='Datasets/Images_gridded/train'
 # validate_image_folder = 'Datasets/Images_gridded/validate'
@@ -34,15 +34,16 @@ directory = os.path.join(RD2F_root, 'Datasets\Images_gridded')
 
 #2eme option
 
-train_image_folder ='Datasets/Images/train'
-validate_image_folder = 'Datasets/Images/validate'
+# train_image_folder ='Datasets/Images/train'
+# validate_image_folder = 'Datasets/Images/validate'
+
+train_image_folder ='Datasets/Images_resized/train'
+validate_image_folder = 'Datasets/Images_resized/validate'
 
 train_smoke_dir = 'Datasets/Images/train/smoke/resized'  
 train_nosmoke_dir = 'Datasets/Images/train/no_smoke/resized'  
 validation_smoke_dir = 'Datasets/Images/validate/smoke/resized' 
 validation_nosmoke_dir = 'Datasets/Images/validate/no_smoke/resized'
-
-
 
 
 
@@ -53,9 +54,9 @@ size_val = len(os.listdir(validation_smoke_dir)) + len(os.listdir(validation_nos
 #Parameters
 h_image = 224
 w_image = 224
+IMG_SIZE = [h_image,w_image]
 cmode = 'binary'
 
 #Batch and epochs
-nb_epoch = 5
+nb_epoch = 8
 batch_size = 30
-
