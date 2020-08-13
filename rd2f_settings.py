@@ -16,6 +16,8 @@
 "Settings of application rd2f"
 
 import os
+import tensorflow as tf
+
 
 #Paths
 RD2F_root = os.path.dirname(os.path.abspath(__file__))
@@ -45,8 +47,6 @@ train_nosmoke_dir = 'Datasets/Images/train/no_smoke/resized'
 validation_smoke_dir = 'Datasets/Images/validate/smoke/resized' 
 validation_nosmoke_dir = 'Datasets/Images/validate/no_smoke/resized'
 
-
-
 #Size of datasets
 size_train = len(os.listdir(train_smoke_dir)) + len(os.listdir(train_nosmoke_dir))
 size_val = len(os.listdir(validation_smoke_dir)) + len(os.listdir(validation_nosmoke_dir))
@@ -60,3 +60,6 @@ cmode = 'binary'
 #Batch and epochs
 nb_epoch = 8
 batch_size = 30
+
+#Model
+Loaded_model = tf.keras.models.load_model('{rd2f_model.h5}')

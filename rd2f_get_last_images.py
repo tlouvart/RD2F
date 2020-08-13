@@ -23,18 +23,32 @@ from datetime import date
 import os
 import urllib.request
 
-from rd2f_settings import RD2F_root
-
-### Using time to schedule operations every 1 min
-import time
-
-starttime = time.time()
-
-i = 0
-while True:
+def get_list_cam(save_in_folder=False):
+    root_archive = 'http://c1.hpwren.ucsd.edu/archive'
     
+    ### Get to camera folder
+    r_folder = requests.get(root_archive)
+    #Create a parser of archive webpage
+    soup1 = BeautifulSoup(r_folder.text, 'html.parser')
+    list_cam = []
+
+    #Go to each camera name -c 
+    for link in soup1.find_all('a'):    
+        if ("-c" in link.get('href')):
+            list_cam.append(link.get('href').replace("/",""))
+    date_cam = "list_cam_{}.txt".format(str(date.today()))
     
-    root = 'http://c1.hpwren.uscd.edu'
+    if save_in_folder:
+        f = open(date_cam, "w")
+        for i, cam in enumerate(list_cam): 
+            f.write(str(i) + " " + cam + "\n")
+        
+    return list_cam 
+
+
+
+def get_last_image(RD2F_root, incrementation, choice): 
+    #root = 'http://c1.hpwren.uscd.edu'
     root_archive = 'http://c1.hpwren.ucsd.edu/archive'
     
     ### Get to camera folder
@@ -47,20 +61,20 @@ while True:
     for link in soup1.find_all('a'):    
         if ("-c" in link.get('href')):
             sources_folder.append(root_archive + '/'+ link.get('href') + 'large/')
-            #print(link.get('href'))
-    
-    ### Get to last folder created
+            
+    ### Get to last folder created : that means today
     
     r_folder_cam = requests.get(sources_folder[0])
     soup2 = BeautifulSoup(r_folder_cam.text, 'html.parser')
     
     sources_folder_last = []
-        
+    
+    #!! For now the number into sources_folder is arbitrary
     for link in soup2.find_all('a'):
         if (str(date.today()).replace('-','') in link.get('href')):
-            sources_folder_last.append(sources_folder[35] + link.get('href'))
+            sources_folder_last.append(sources_folder[choice] + link.get('href'))
     
-    #Get the last Q to investigate
+    #Get the last Q to investigate : we take every links, and we take the last one : it will be the last Q folder. 
     
     r_folder_cam_last = requests.get(sources_folder_last[0])
     soup3 = BeautifulSoup(r_folder_cam_last.text, 'html.parser')
@@ -88,12 +102,13 @@ while True:
     
     source_last_image = sources[-1]
     
-    
-    
+  
     ### Download image
     
-    os.chdir(RD2F_root + '\last_image_to_test') 
-    urllib.request.urlretrieve(source_last_image, "{:05d}.jpg".format(i))
-    i += 1
+    os.chdir(RD2F_root + '\last_image_to_test')
+    list_cam = get_list_cam()
+    urllib.request.urlretrieve(source_last_image, "{}_{}_{:05d}.jpg".format(list_cam[choice],date.today(),incrementation))
+    path_last_img = os.path.join(RD2F_root + '\last_image_to_test' + "\{}_{}_{:05d}.jpg".format(list_cam[choice],date.today(),incrementation))
     
-    time.sleep(60.0 - ((time.time() - starttime) % 60.0))
+    return path_last_img
+    

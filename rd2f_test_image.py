@@ -18,35 +18,29 @@
 Chargement de modèle rd2f """
 
 
-import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 import tensorflow as tf
 
-#Import dependancies of rd2f project
-from rd2f_settings import *
-
-
-#Importation du modèle entrainé 
-Loaded_model = tf.keras.models.load_model('{rd2f_model.h5}')
-
-
-# Test d'image si necessaire. 
-image = tf.keras.preprocessing.image.load_img(os.path.join(RD2F_root,'last_image_to_test/00000.jpg'))
-
-#Affichage de l'image
-plt.imshow(image)
-
-
-input_arr = tf.keras.preprocessing.image.img_to_array(image)
-input_arr = tf.image.resize(input_arr, [224,224]) #On resize l'image à la taille demandé par le modèle
-input_arr = np.array([input_arr])/255  # Convert single image to a batch.
-
-
-predictions = np.around(Loaded_model.predict(input_arr))
-if predictions == [[0]]:
-    print("No smoke")
-else:
-    print("Smoke in image")
+def predict_image_class(model_to_use, path):
+    # Test d'image si necessaire. 
+    #image = tf.keras.preprocessing.image.load_img(os.path.join(RD2F_root,'last_image_to_test/00000.jpg'))
+    img = tf.keras.preprocessing.image.load_img(path)
+    #Affichage de l'image
+    plt.imshow(img)
+    #Convert img to array
+    input_arr = tf.keras.preprocessing.image.img_to_array(img)
+    #On resize l'image à la taille demandé par le modèle
+    input_arr = tf.image.resize(input_arr, [224,224])
+    # Convert single image to a batch.
+    input_arr = np.array([input_arr])/255
+    
+    #Make predictions
+    predictions = np.around(model_to_use.predict(input_arr))
+    print(model_to_use.predict(input_arr))
+    
+    if predictions == [[0]]:
+        print("No smoke . Class : ", predictions[0])
+    else:
+        print("Smoke in image / Class : ", predictions[0])

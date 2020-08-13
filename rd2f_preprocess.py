@@ -16,14 +16,10 @@
 
 """Ce fichier a pour objectif d'effectuer un preprocessing des images télechargées"""
 
-import sys
 import os
 
-import numpy as np
-
-
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 from rd2f_settings import *
 
@@ -89,26 +85,26 @@ def change_ext(folder_to_change, init_ext, final_ext):
  
 ##### TESTS
 
-files_train_smoke = list_files(train_smoke_dir)
-files_val_smoke = list_files(validation_smoke_dir)
-files_train_no_smoke = list_files(train_nosmoke_dir)
-files_val_no_smoke = list_files(validation_nosmoke_dir)
+# files_train_smoke = list_files(train_smoke_dir)
+# files_val_smoke = list_files(validation_smoke_dir)
+# files_train_no_smoke = list_files(train_nosmoke_dir)
+# files_val_no_smoke = list_files(validation_nosmoke_dir)
 
 
-rename_files(files_train_smoke, train_smoke_dir)
-rename_files(files_train_no_smoke, train_nosmoke_dir)
-rename_files(files_val_no_smoke, validation_nosmoke_dir)
-rename_files(files_val_smoke, validation_smoke_dir)
+# rename_files(files_train_smoke, train_smoke_dir)
+# rename_files(files_train_no_smoke, train_nosmoke_dir)
+# rename_files(files_val_no_smoke, validation_nosmoke_dir)
+# rename_files(files_val_smoke, validation_smoke_dir)
 
 
-save_image(train_smoke_res_dir,  resize_files(files_train_smoke, train_smoke_dir, IMG_SIZE))
-save_image(train_nosmoke_res_dir,  resize_files(files_train_no_smoke, train_nosmoke_dir, IMG_SIZE))
-save_image(validation_nosmoke_res_dir,  resize_files(files_val_no_smoke, validation_nosmoke_dir, IMG_SIZE))
-save_image(validation_smoke_res_dir,  resize_files(files_val_smoke, validation_smoke_dir, IMG_SIZE))
+# save_image(train_smoke_res_dir,  resize_files(files_train_smoke, train_smoke_dir, IMG_SIZE))
+# save_image(train_nosmoke_res_dir,  resize_files(files_train_no_smoke, train_nosmoke_dir, IMG_SIZE))
+# save_image(validation_nosmoke_res_dir,  resize_files(files_val_no_smoke, validation_nosmoke_dir, IMG_SIZE))
+# save_image(validation_smoke_res_dir,  resize_files(files_val_smoke, validation_smoke_dir, IMG_SIZE))
 
     
 
-files_train_smoke = list_files(train_smoke_dir)
-files_val_smoke = list_files(validation_smoke_dir)
-files_train_no_smoke = list_files(train_nosmoke_dir)
-files_val_no_smoke = list_files(validation_nosmoke_dir)
+# files_train_smoke = list_files(train_smoke_dir)
+# files_val_smoke = list_files(validation_smoke_dir)
+# files_train_no_smoke = list_files(train_nosmoke_dir)
+# files_val_no_smoke = list_files(validation_nosmoke_dir)
