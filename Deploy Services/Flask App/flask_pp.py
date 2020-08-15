@@ -5,7 +5,7 @@ Created on Tue Aug 11 19:08:09 2020
 @author: Théophile Louvart
 """
 #Imports
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -38,42 +38,54 @@ class BlogPost(db.Model):
 
 
 #get cam name from txt
-d = []
-with open("list_cam_2020-08-13.txt") as f:
-    for line in f:
-        (key,val) = line.split()
-        d.append({'cam_name' : str(val)})
+# d = []
+# with open("list_cam_2020-08-13.txt") as f:
+#     for line in f:
+#         (key,val) = line.split()
+#         d.append({'cam_name' : str(val)})
 
 
 
-all_posts = [
-    {
-     'title': 'post 1',
-     'content': 'first content of post 1',   
-     'author' : 'Oui'
-    },
-    {
-     'title': 'post 2',
-     'content': 'first content of post 2 blblbl'    
-    }
-    ]
-
-
-@app.route('/')
+@app.route('/index')
 def index():
     return render_template('index.html')
 
-@app.route('/posts')
+@app.route('/posts',methods=['GET','POST'])
 def posts():
-    return render_template('posts.html', posts=d)
+    if request.method == 'POST':
+        post_title = request.form['title']
+        post_content = request.form['content']
+        post_author= request.form['author']
+        new_post = BlogPost(title=post_title, content=post_content, author=post_author)
+        db.session.add(new_post)
+        #need to commit for permanent usage
+        db.session.commit()
 
-@app.route('/home/<string:name>')
-def hello(name):
-    return "Hello, {}".format(name)
+        return redirect('/posts')
+    else :
+        all_posts = BlogPost.query.order_by(BlogPost.date_posted).all()
+        return render_template('posts.html', posts=all_posts)
 
-@app.route('/onlyget', methods=['GET'])
-def get_req():
-    return 'you can only get this webpage'
+@app.route('/posts/delete/<int:id>')
+def delete(id):
+    del_post = BlogPost.query.get_or_404(id)
+    db.session.delete(del_post)
+    db.session.commit()
+
+    return redirect('/posts')
+
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    if request.method == 'POST':
+        edit_post = BlogPost.query.get_or_404(id)
+        edit_post.title = request.form['title']
+        edit_post.content = request.form['content']
+        edit_post.author = request.form['author']
+    
+        #need to commit for permanent usage
+        db.session.commit()
+        return redirect('/posts')
+    return render_template('edit.html', post = BlogPost.query.get_or_404())
 
 
 
