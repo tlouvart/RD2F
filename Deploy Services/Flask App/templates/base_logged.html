@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    
-
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"> 
+   
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     
 
     {% block head %} {% endblock %}
@@ -16,7 +19,7 @@
 
 <body>
     
-<nav class="navbar navbar-expand navbar-dark bg-dark">
+<nav class="navbar navbar-expand sticky-top navbar-dark bg-dark">
     <a class="navbar-brand" href="/">MIRA</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -25,24 +28,19 @@
     <div class="collapse navbar-collapse" id="navbarsExample02">
   
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/dashboard">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Alarms</a>
-            </li>         
-            <li class="nav-item">
-                <a class="nav-link" href="#">Watch Map</a>
-            </li>
         </ul>
         <ul class="navbar-nav ml-auto pr-3">
             <li class="nav-item">
-                <a class="nav-link" href="/login">Account | Sign In</a>
+                <a class="nav-link" href="/">Settings</a>
             </li>
-        </ul>
+            <li class="nav-item">
+                <a class="nav-link" href="/">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Sign out</a>
+            </li>
+
+                        
     </div>
 </nav>
 
@@ -55,10 +53,7 @@
 
 
     
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}" type="text/javascript"></script>    
+
     <script type="text/javascript">
    
     $(document).ready(function() {
@@ -66,10 +61,15 @@
       $('a[href="' + location.pathname + '"]').closest('li').addClass('active'); 
     });
     
+    $( document ).on( 'click', '.btn-toolbar button', function ( e ) {
+    $( this ).addClass( 'active' ).siblings().removeClass( 'active' );
+} );
     
     </script>
 
 </body>
+
+
 </html>
 
 
