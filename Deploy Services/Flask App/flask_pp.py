@@ -5,24 +5,50 @@ Created on Tue Aug 11 19:08:09 2020
 @author: Théophile Louvart
 """
 #Imports
-from flask import Flask, render_template, request, redirect
-#DB import
-from flask_sqlalchemy import SQLAlchemy
 
-#Forms imports
+import os
+
+
+#Imports Flask Utilities
+
+from flask import Flask, render_template, request, redirect, jsonify
+#forms
 from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
-
-#Security password import
-from werkzeug.security import generate_password_hash, check_password_hash
-  
+#db
+from flask_sqlalchemy import SQLAlchemy
 #Manage login system import
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
+
+#Security password import
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+#Other Imports
 from datetime import datetime
+
+### KERAS UTILITIES 
+from tensorflow.keras.models import load_model
+
+
+### RD2F scripts
+from rd2f_test_image import predict_image_class
+
+
+
+# Model saved with Keras model.save()
+MODEL_PATH = 'models/rd2f_model.h5'
+
+# Load trained model
+model = load_model(MODEL_PATH)
+model._make_predict_function()  
+
+
+print('Model loaded. Check http://127.0.0.1:5000/')
+
 
 # Create a basic flask app
 app =  Flask(__name__)
@@ -45,18 +71,17 @@ login_manager.login_view = 'login'
 
 #Designing the db through class
 
-class BlogPost(db.Model):
+class TestEntry(db.Model):
     #primary key means id always be unique
     id = db.Column(db.Integer, primary_key=True)
     #nullable means it has to be there
-    title = db.Column(db.String(100), nullable=False)
-    content =  db.Column(db.Text, nullable=False)
+    cam_name = db.Column(db.String(100), nullable=False)
+    prob =  db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(30), nullable=False, default='N/A')
     # default will put value if nothing
-    author = db.Column(db.String(30), nullable=False, default='N/A')
+    state = db.Column(db.String(30), nullable=False,)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 
-    def __repr__(self):
-        return 'Blog post' + str(self.id)
 
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -134,42 +159,32 @@ def dashboard():
 
 @app.route('/posts',methods=['GET','POST'])
 def posts():
+        return render_template('posts.html')
+
+
+@app.route('/predict', methods=['GET', 'POST'])
+def upload():
     if request.method == 'POST':
-        post_title = request.form['title']
-        post_content = request.form['content']
-        post_author= request.form['author']
-        new_post = BlogPost(title=post_title, content=post_content, author=post_author)
-        db.session.add(new_post)
-        #need to commit for permanent usage
+        # Get the file from post request
+        f = request.files['file']
+        name = f.filename
+        # Save the file to ./uploads
+        basepath = os.path.dirname(__file__)
+        file_path = os.path.join(
+            basepath, 'uploads', secure_filename(f.filename))
+        f.save(file_path)
+        
+        # Make prediction
+        pred, class_pred = predict_image_class(model,file_path)
+        result0 = [name,class_pred,str(pred[0]),class_pred]
+        
+        #Edit Database
+        new_entry = TestEntry(cam_name =name, prob=str(pred[0]), state=class_pred)
+        db.session.add(new_entry)
         db.session.commit()
 
-        return redirect('/posts')
-    else :
-        all_posts = BlogPost.query.order_by(BlogPost.date_posted).all()
-        return render_template('posts.html', posts=all_posts)
-
-@app.route('/posts/delete/<int:id>')
-def delete(id):
-    del_post = BlogPost.query.get_or_404(id)
-    db.session.delete(del_post)
-    db.session.commit()
-
-    return redirect('/posts')
-
-@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
-def edit(id):
-    if request.method == 'POST':
-        edit_post = BlogPost.query.get_or_404(id)
-        edit_post.title = request.form['title']
-        edit_post.content = request.form['content']
-        edit_post.author = request.form['author']
-    
-        #need to commit for permanent usage
-        db.session.commit()
-        return redirect('/posts')
-    return render_template('edit.html', post = BlogPost.query.get_or_404())
-
-
+        return jsonify(result0)
+    return None
 
 if __name__ == "__main__":
     app.run(debug=True)
