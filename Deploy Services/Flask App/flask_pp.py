@@ -29,6 +29,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 #Other Imports
 from datetime import datetime
+import time
+
 
 ### KERAS UTILITIES 
 from tensorflow.keras.models import load_model
@@ -36,11 +38,13 @@ from tensorflow.keras.models import load_model
 
 ### RD2F scripts
 from rd2f_test_image import predict_image_class
-
+from rd2f_get_last_images_deploy import get_last_image, get_list_cam
+from rd2f_settings_deploy import RD2F_root
 
 
 # Model saved with Keras model.save()
 MODEL_PATH = 'models/rd2f_model.h5'
+incrementation = 0
 
 # Load trained model
 model = load_model(MODEL_PATH)
@@ -153,7 +157,30 @@ def log_out():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name = current_user.username)
+    all_entry = TestEntry.query.order_by(TestEntry.date_posted)
+    return render_template('dashboard.html', entries=all_entry, name = current_user.username)
+
+@app.route('/dashboard/enable', methods=['GET','POST'])
+def enable_s():
+
+    choice = 65
+    incrementation = len(TestEntry.query.all())
+    path, name = get_last_image(RD2F_root, incrementation, choice)
+    
+    # Make prediction
+    pred, class_pred = predict_image_class(model,path)
+
+    
+    #Edit Database
+    new_entry = TestEntry(cam_name =name, prob=str(pred[0]), state=class_pred)
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return jsonify(name = name)
+
+@app.route('/dashboard/disable', methods=['GET','POST'])
+def disable_s():
+    return redirect('/dashboard')
 
 
 
@@ -171,7 +198,7 @@ def upload():
         # Save the file to ./uploads
         basepath = os.path.dirname(__file__)
         file_path = os.path.join(
-            basepath, 'uploads', secure_filename(f.filename))
+            basepath, 'static/uploads', secure_filename(f.filename))
         f.save(file_path)
         
         # Make prediction
@@ -185,6 +212,13 @@ def upload():
 
         return jsonify(result0)
     return None
+
+@app.route('/delete_entry/<int:id>')
+def delete_entry(id):
+    entry = TestEntry.query.get_or_404(id)
+    db.session.delete(entry)
+    db.session.commit()
+    return redirect('/dashboard')
 
 if __name__ == "__main__":
     app.run(debug=True)
