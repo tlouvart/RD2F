@@ -29,8 +29,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 #Other Imports
 from datetime import datetime
-import time
-
+import json
 
 ### KERAS UTILITIES 
 from tensorflow.keras.models import load_model
@@ -39,12 +38,13 @@ from tensorflow.keras.models import load_model
 ### RD2F scripts
 from rd2f_test_image import predict_image_class
 from rd2f_get_last_images_deploy import get_last_image, get_list_cam
-from rd2f_settings_deploy import RD2F_root
+from rd2f_settings_deploy import RD2F_root, ARCHIVE_ROOT, TIMEZONE,MON_UPDATE_RATE, DASH_UPDATE_RATE
 
 
 # Model saved with Keras model.save()
 MODEL_PATH = 'models/rd2f_model.h5'
 incrementation = 0
+
 
 # Load trained model
 model = load_model(MODEL_PATH)
@@ -92,7 +92,15 @@ class Users(UserMixin, db.Model):
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
+    
+class Settings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    server_path = db.Column(db.String(15))
+    timezone = db.Column(db.String(15))
+    mon_update = db.Column(db.Integer())
+    dash_update = db.Column(db.Integer())
 
+#Default settings
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
@@ -108,14 +116,6 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email('Invalid Email'), Length(max=50)])
     username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)]) 
-
-#get cam name from txt
-# d = []
-# with open("list_cam_2020-08-13.txt") as f:
-#     for line in f:
-#         (key,val) = line.split()
-#         d.append({'cam_name' : str(val)})
-
 
 
 @app.route('/')
@@ -158,36 +158,75 @@ def log_out():
 @login_required
 def dashboard():
     all_entry = TestEntry.query.order_by(TestEntry.date_posted)
-    return render_template('dashboard.html', entries=all_entry, name = current_user.username)
+    list_cam = get_list_cam()
+    return render_template('dashboard.html', entries=all_entry, name = current_user.username, list_cam=list_cam)
+
 
 @app.route('/dashboard/enable', methods=['GET','POST'])
 def enable_s():
-
-    choice = 65
-    incrementation = len(TestEntry.query.all())
-    path, name = get_last_image(RD2F_root, incrementation, choice)
+    if request.method == 'POST':
+        choice = request.get_data()
+        choice = json.loads(choice)
+        #increment to fit python list indent
+        choice -= 1 
+        incrementation = len(TestEntry.query.all())
+        root_archive = Settings.query.first().server_path
+        
+        path, name = get_last_image(root_archive,RD2F_root, incrementation, choice)
+        
+        # Make prediction
+        pred, class_pred = predict_image_class(model,path)
     
-    # Make prediction
-    pred, class_pred = predict_image_class(model,path)
-
+        
+        #Edit Database
+        new_entry = TestEntry(cam_name =name, prob=str(pred[0]), state=class_pred)
+        db.session.add(new_entry)
+        db.session.commit()
     
-    #Edit Database
-    new_entry = TestEntry(cam_name =name, prob=str(pred[0]), state=class_pred)
-    db.session.add(new_entry)
-    db.session.commit()
-
-    return jsonify(name = name)
+        return jsonify(name = name)
 
 @app.route('/dashboard/disable', methods=['GET','POST'])
 def disable_s():
     return redirect('/dashboard')
 
 
+@app.route('/delete_entry/<int:id>')
+def delete_entry(id):
+    entry = TestEntry.query.get_or_404(id)
+    db.session.delete(entry)
+    db.session.commit()
+    return redirect('/dashboard')
 
-@app.route('/posts',methods=['GET','POST'])
-def posts():
-        return render_template('posts.html')
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings_s():
+    if len(Settings.query.all()) == 0:        
+        d_settings = Settings(server_path=ARCHIVE_ROOT,timezone=TIMEZONE,mon_update=MON_UPDATE_RATE,dash_update=DASH_UPDATE_RATE)
+        db.session.add(d_settings)
+        db.session.commit()
+
+    settings = Settings.query.first()
+    if request.method == "POST":
+        settings = Settings.query.first()
+        new_path = request.data.decode('UTF-8')
+        settings.server_path = str(new_path)
+        # settings.timezone = request.form['settings_tz']
+        # settings.mon_update = request.form['settings_mon_update']
+        # settings.dash_update = request.form['settings_dash_update']
+        db.session.commit()
+        
+    return render_template('settings.html', settings = settings)
+
+@app.route('/settings/default', methods=['GET', 'POST'])
+def default_s():
+    d_settings = Settings(server_path=ARCHIVE_ROOT,timezone=TIMEZONE,mon_update=MON_UPDATE_RATE,dash_update=DASH_UPDATE_RATE)
+    settings = Settings.query.first()
+    settings.server_path = d_settings.server_path
+    settings.timezone = d_settings.timezone
+    settings.mon_update = d_settings.mon_update
+    settings.dash_update = d_settings.dash_update
+    db.session.commit()
+    return render_template('settings.html', settings = settings)    
 
 @app.route('/predict', methods=['GET', 'POST'])
 def upload():
@@ -200,6 +239,7 @@ def upload():
         file_path = os.path.join(
             basepath, 'static/uploads', secure_filename(f.filename))
         f.save(file_path)
+
         
         # Make prediction
         pred, class_pred = predict_image_class(model,file_path)
@@ -213,12 +253,6 @@ def upload():
         return jsonify(result0)
     return None
 
-@app.route('/delete_entry/<int:id>')
-def delete_entry(id):
-    entry = TestEntry.query.get_or_404(id)
-    db.session.delete(entry)
-    db.session.commit()
-    return redirect('/dashboard')
 
 if __name__ == "__main__":
     app.run(debug=True)

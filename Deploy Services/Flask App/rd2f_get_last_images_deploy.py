@@ -18,13 +18,17 @@
 
 import requests
 from bs4 import BeautifulSoup
-from datetime import date
+from datetime import date, datetime
+#to sync timezone on los_angeles or place timezone
+from pytz import timezone
+from rd2f_settings_deploy import TIMEZONE, ARCHIVE_ROOT
+
 
 import os
 import urllib.request
 
 def get_list_cam(save_in_folder=False):
-    root_archive = 'http://c1.hpwren.ucsd.edu/archive'
+    root_archive = ARCHIVE_ROOT
     
     ### Get to camera folder
     r_folder = requests.get(root_archive)
@@ -47,9 +51,11 @@ def get_list_cam(save_in_folder=False):
 
 
 
-def get_last_image(RD2F_root, incrementation, choice): 
-    #root = 'http://c1.hpwren.uscd.edu'
-    root_archive = 'http://c1.hpwren.ucsd.edu/archive'
+def get_last_image(root_archive, RD2F_root, incrementation, choice): 
+    
+    root_archive = root_archive
+    #timzeone of server
+    time_zone = timezone(TIMEZONE)
     
     ### Get to camera folder
     #r_folder = requests.get(url_folder)
@@ -69,9 +75,12 @@ def get_last_image(RD2F_root, incrementation, choice):
     
     sources_folder_last = []
     
+    #get date of server
+    date_timezone = str(datetime.now(time_zone))[0:10]
+    
     #!! For now the number into sources_folder is arbitrary
     for link in soup2.find_all('a'):
-        if (str(date.today()).replace('-','') in link.get('href')):
+        if (str(date_timezone).replace('-','') in link.get('href')):
             sources_folder_last.append(sources_folder[choice] + link.get('href'))
     
     #Get the last Q to investigate : we take every links, and we take the last one : it will be the last Q folder. 
@@ -108,6 +117,9 @@ def get_last_image(RD2F_root, incrementation, choice):
     os.chdir(RD2F_root + '\static\last_image_to_test')
     list_cam = get_list_cam()
     urllib.request.urlretrieve(source_last_image, "{}_{}_{:05d}.jpg".format(list_cam[choice],date.today(),incrementation))
+    #Creating cache for deploy
+    os.chdir(RD2F_root + '\static\cache')
+    urllib.request.urlretrieve(source_last_image, "cache.jpg")    
     path_last_img = os.path.join(RD2F_root + '\static\last_image_to_test' + "\{}_{}_{:05d}.jpg".format(list_cam[choice],date.today(),incrementation))
     name = ("{}_{}_{:05d}.jpg".format(list_cam[choice],date.today(),incrementation))
     return path_last_img, name

@@ -16,8 +16,12 @@
 "Settings of application rd2f"
 
 import os
-import tensorflow as tf
+
 
 
 #Paths
 RD2F_root = os.path.dirname(os.path.abspath(__file__))
+TIMEZONE = 'America/Los_Angeles'
+ARCHIVE_ROOT = 'http://c1.hpwren.ucsd.edu/archive'
+MON_UPDATE_RATE = 30000
+DASH_UPDATE_RATE = 30000

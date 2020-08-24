@@ -1,0 +1,29 @@
+.themed-grid-col {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background-color: rgba(86, 61, 124, .15);
+  border: 1px solid rgba(86, 61, 124, .2);
+}
+
+.themed-container {
+  padding: 15px;
+  margin-bottom: 30px;
+  background-color: rgba(0, 123, 255, .15);
+  border: 1px solid rgba(0, 123, 255, .2);
+}
+
+.italic-placeholder {
+ font-style : italic;
+}
+
+.input-group-text{
+  background-color: rgba(0, 153, 255, .15);
+}
+.server-status-on{
+  background-color: rgba(0, 255, 120, .15);
+  font-weight: bold;
+}
+.server-status-off{
+  background-color: rgba(255, 0, 80, .55);
+  font-weight: bold;
+}

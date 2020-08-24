@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
+    <link rel="shortcut icon" href="/static/icon3.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"> 
-   
+    <link rel="stylesheet" href="{{url_for('static', filename='css/side_bar.css')}}">
+       
     <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
@@ -19,37 +20,116 @@
 
 <body>
     
-<nav class="navbar navbar-expand sticky-top navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">MIRA</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+    <nav class="navbar sticky-top navbar-expand navbar-dark" style="background-color: rgba(0, 0, 0, .95)">
+        <a class="navbar-brand" href="/"><img src="/static/long.png" class="mt-1" style="max-width:60px"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarsExample02">
+      
+            <ul class="navbar-nav mr-auto">
+            </ul>
+            <ul class="navbar-nav ml-auto pr-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Sign out</a>
+                </li>
     
-    <div class="collapse navbar-collapse" id="navbarsExample02">
-  
-        <ul class="navbar-nav mr-auto">
-        </ul>
-        <ul class="navbar-nav ml-auto pr-3">
-            <li class="nav-item">
-                <a class="nav-link" href="/">Settings</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/">Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/logout">Sign out</a>
-            </li>
-
-                        
-    </div>
-</nav>
+                            
+        </div>
+    </nav>
 
 
 
     
-
+    <div class="container-fluid">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+          <div class="sidebar-sticky pt-3">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Panel</span>
+            </h6>      
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                  <span data-feather="home"></span>
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/settings">
+                  <span data-feather="home"></span>
+                  Settings
+                </a>
+              </li>                    
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file"></span>
+                  Monitoring
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="shopping-cart"></span>
+                  Alarms
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="users"></span>
+                  Dynamic Watch Map
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="users"></span>
+                  Prevision Map
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="bar-chart-2"></span>
+                  Cameras Database
+                </a>
+              </li>
+            </ul>
+        
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Historic</span>
+            </h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Day Recap
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Week Recap
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Month Recap
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Year Recap
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>    
+      
         {% block body %} {% endblock %}
-
+    </div>
 
 
     
@@ -59,6 +139,10 @@
     $(document).ready(function() {
       $('li.active').removeClass('active');
       $('a[href="' + location.pathname + '"]').closest('li').addClass('active'); 
+      
+      $('a.active').removeClass('active');      
+      $('a[href="' + location.pathname + '"]').closest('a').addClass('active');      
+      
     });
     
     </script>

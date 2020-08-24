@@ -1,0 +1,113 @@
+{% extends 'base_logged.html'%}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/settings.css')}}">
+<script type="text/javascript"> server_path = "{{settings.server_path}}".replace(/archive/g, ""); </script>
+<script src="{{ url_for('static', filename='js/settings.js') }}" type="text/javascript"></script>
+
+
+<title> Settings </title>
+
+{% endblock %}
+
+{% block body %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">    
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Settings</h1>
+        <button id="default-settings" class="btn btn-light btn-sm btn-outline-secondary" type="button">Restore default</button>       
+    </div>   
+    
+    <h3 class="h4 mb-3"> Server settings </h3> 
+    
+      <div class="row mb-3">
+        <div class="col-md-5">      
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Camera's archive path : </label>
+          </div>
+          <input disabled id="input-path" type="text" class="form-control italic-placeholder" placeholder="{{settings.server_path}}" value="{{settings.server_path}}" aria-label="Archive Path" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button id="edit-btn" class="btn btn-light btn-sm btn-outline-success" type="button">Edit</button>
+          </div>
+          <div class="input-group-append">
+            <button id="save-chg" class="btn btn-light btn-sm btn-outline-success" type="button">Save</button>
+          </div>
+        </div>
+        </div>
+        
+        
+        <div class="col-md-4">      
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Timezone of server : </label>
+          </div>
+          <input disabled id="input-tz" type="text" class="form-control italic-placeholder" placeholder="{{settings.timezone}}" value="{{settings.timezone}}" aria-label="Timezone" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button id="edit-btn1" class="btn btn-light btn-sm btn-outline-success" type="button">Edit</button>
+          </div>
+          <div class="input-group-append">
+            <button id="save-chg1" class="btn btn-light btn-sm btn-outline-success" type="button">Save</button>
+          </div>                    
+        </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">Server Status</label>
+                <label id="server-status" class="group-text" for="inputGroupSelect01">Loading...</label>
+            </div>          
+        </div>   
+      </div>
+      
+    <h3 class="h4 mb-3"> Monitoring settings </h3>  
+       
+     <div class="row mb-3">
+     
+        <div class="col-md-5">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">Monitoring Update Time Interval</label>
+              </div>
+              <select disabled class="custom-select" id="inputGroupSelect01">
+                <option selected>Default</option>
+                <option value="1">30 s</option>
+                <option value="2">1 min</option>
+                <option value="3">5 min</option>
+                <option value="3">30 min</option>                
+              </select>
+              <div class="input-group-append">
+                <button id="edit-btn2" class="btn btn-light btn-sm btn-outline-success" type="button">Edit</button>
+              </div>
+              <div class="input-group-append">
+                <button id="save-chg2" class="btn btn-light btn-sm btn-outline-success" type="button">Save</button>
+              </div>                
+            </div>                
+        </div>
+     
+        <div class="col-md-5">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">Dashboard Update Time Interval</label>
+              </div>
+              <select disabled class="custom-select" id="inputGroupSelect01">
+                <option selected>Default</option>
+                <option value="1">30 s</option>
+                <option value="2">1 min</option>
+                <option value="3">5 min</option>
+                <option value="3">30 min</option>                
+              </select>
+              <div class="input-group-append">
+                <button id="edit-btn2" class="btn btn-light btn-sm btn-outline-success" type="button">Edit</button>
+              </div>
+              <div class="input-group-append">
+                <button id="save-chg2" class="btn btn-light btn-sm btn-outline-success" type="button">Save</button>
+              </div>                
+            </div>                
+        </div>        
+      </div>
+    
+    
+    
+</main> 
+{% endblock %}
+
